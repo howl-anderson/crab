@@ -30,7 +30,7 @@ from scikits.crab.similarities import UserSimilarity
 # Build the similarity
 similarity = UserSimilarity(model, pearson_correlation)
 
-from crab.recommenders.knn import UserBasedRecommender
+from scikits.crab.recommenders.knn import UserBasedRecommender
 # Build the User based recommender
 recommender = UserBasedRecommender(model, similarity, with_preference=True)
 
