@@ -4,7 +4,9 @@ from scikits.crab import datasets
 movies = datasets.load_sample_movies()
 songs = datasets.load_sample_songs()
 
-print movies.user_ids
+data = songs
+
+print data.user_ids
 # {1: 'Jack Matthews',
 #  2: 'Mick LaSalle',
 #  3: 'Claudia Puig',
@@ -13,7 +15,7 @@ print movies.user_ids
 #  6: 'Gene Seymour',
 #  7: 'Michael Phillips'}
 
-print movies.item_ids
+print data.item_ids
 # {1: 'Lady in the Water',
 #  2: 'Snakes on a Planet',
 #  3: 'You, Me and Dupree',
@@ -23,7 +25,7 @@ print movies.item_ids
 
 from scikits.crab.models import MatrixPreferenceDataModel
 # Build the model
-model = MatrixPreferenceDataModel(movies.data)
+model = MatrixPreferenceDataModel(data.data)
 
 from scikits.crab.metrics import pearson_correlation
 from scikits.crab.similarities import UserSimilarity

@@ -439,8 +439,7 @@ class UserBasedRecommender(UserRecommender):
 
     """
 
-    def __init__(self, model, similarity, neighborhood_strategy=None,
-                capper=True, with_preference=False):
+    def __init__(self, model, similarity, neighborhood_strategy=None, capper=True, with_preference=False):
         UserRecommender.__init__(self, model, with_preference)
         self.similarity = similarity
         self.capper = capper
@@ -450,7 +449,7 @@ class UserBasedRecommender(UserRecommender):
             self.neighborhood_strategy = neighborhood_strategy
 
     def all_other_items(self, user_id, **params):
-        '''
+        """
         Parameters
         ----------
         user_id: int or string
@@ -479,13 +478,14 @@ class UserBasedRecommender(UserRecommender):
         Return items in the `model` for which the user has not expressed
         the preference and could possibly be recommended to the user.
 
-        '''
+        """
+
         n_similarity = params.pop('n_similarity', 'user_similarity')
         distance = params.pop('distance', self.similarity.distance)
         nhood_size = params.pop('nhood_size', None)
 
-        nearest_neighbors = self.neighborhood_strategy.user_neighborhood(user_id,
-                self.model, n_similarity, distance, nhood_size, **params)
+        nearest_neighbors = self.neighborhood_strategy.user_neighborhood(user_id, self.model, n_similarity, distance,
+                                                                         nhood_size, **params)
 
         items_from_user_id = self.model.items_from_user(user_id)
         possible_items = []
@@ -496,73 +496,10 @@ class UserBasedRecommender(UserRecommender):
 
         return np.setdiff1d(possible_items, items_from_user_id)
 
-    def estimate_preference(self, user_id, item_id, **params):
-        '''
-        Parameters
-        ----------
-        user_id: int or string
-                 User for which recommendations are to be computed.
 
-        item_id:  int or string
-            ID of item for which wants to find the estimated preference.
-
-        Returns
-        -------
-        Return an estimated preference if the user has not expressed a
-        preference for the item, or else the user's actual preference for the
-        item. If a preference cannot be estimated, returns None.
-        '''
-
-        preference = self.model.preference_value(user_id, item_id)
-        if not np.isnan(preference):
-            return preference
-
-        n_similarity = params.pop('n_similarity', 'user_similarity')
-        distance = params.pop('distance', self.similarity.distance)
-        nhood_size = params.pop('nhood_size', None)
-
-        nearest_neighbors = self.neighborhood_strategy.user_neighborhood(user_id,
-                self.model, n_similarity, distance, nhood_size, **params)
-
-        preference = 0.0
-        total_similarity = 0.0
-
-        similarities = np.array([self.similarity.get_similarity(user_id, to_user_id)
-                for to_user_id in nearest_neighbors]).flatten()
-
-        prefs = np.array([self.model.preference_value(to_user_id, item_id)
-                 for to_user_id in nearest_neighbors])
-
-        prefs = prefs[~np.isnan(prefs)]
-        similarities = similarities[~np.isnan(prefs)]
-
-        prefs_sim = np.sum(prefs[~np.isnan(similarities)] *
-                             similarities[~np.isnan(similarities)])
-        total_similarity = np.sum(similarities)
-
-        #Throw out the estimate if it was based on no data points,
-        #of course, but also if based on just one. This is a bit
-        #of a band-aid on the 'stock' item-based algorithm for
-        #the moment. The reason is that in this case the estimate
-        #is, simply, the user's rating for one item that happened
-        #to have a defined similarity. The similarity score doesn't
-        #matter, and that seems like a bad situation.
-        if total_similarity == 0.0 or \
-           not similarities[~np.isnan(similarities)].size:
-            return np.nan
-
-        estimated = prefs_sim / total_similarity
-
-        if self.capper:
-            max_p = self.model.maximum_preference_value()
-            min_p = self.model.minimum_preference_value()
-            estimated = max_p if estimated > max_p else min_p \
-                     if estimated < min_p else estimated
-
-        return estimated
 
     def most_similar_users(self, user_id, how_many=None):
-        '''
+        """
         Return the most similar users to the given user, ordered
         from most similar to least.
 
@@ -573,9 +510,10 @@ class UserBasedRecommender(UserRecommender):
 
         how_many: int
             Desired number of most similar users to find (default=None ALL)
-        '''
+        """
+
         old_how_many = self.similarity.num_best
-        #+1 since it returns the identity.
+        # +1 since it returns the identity.
         self.similarity.num_best = how_many + 1 \
                     if how_many is not None else None
         similarities = self.similarity[user_id]
@@ -584,7 +522,7 @@ class UserBasedRecommender(UserRecommender):
             if user_id != to_user_id and not np.isnan(pref)])
 
     def recommend(self, user_id, how_many=None, **params):
-        '''
+        """
         Return a list of recommended items, ordered from most strongly
         recommend to least.
 
@@ -595,19 +533,18 @@ class UserBasedRecommender(UserRecommender):
         how_many: int
                  Desired number of recommendations (default=None ALL)
 
-        '''
+        """
 
         self.set_params(**params)
 
         candidate_items = self.all_other_items(user_id, **params)
 
-        recommendable_items = self._top_matches(user_id, \
-                 candidate_items, how_many)
+        recommendable_items = self._top_matches(user_id, candidate_items, how_many)
 
         return recommendable_items
 
-    def _top_matches(self, source_id, target_ids, how_many=None, **params):
-        '''
+    def _top_matches(self, source_id, target_item_ids, how_many=None, **params):
+        """
         Parameters
         ----------
         target_ids: array of shape [n_target_ids]
@@ -622,17 +559,18 @@ class UserBasedRecommender(UserRecommender):
         --------
         Return the top N matches
         It can be user_ids or item_ids.
-        '''
-        #Empty target_ids
-        if target_ids.size == 0:
+        """
+
+        # Empty target_ids
+        if target_item_ids.size == 0:
             return np.array([])
 
         estimate_preferences = np.vectorize(self.estimate_preference)
 
-        preferences = estimate_preferences(source_id, target_ids)
+        preferences = estimate_preferences(source_id, target_item_ids)
 
         preference_values = preferences[~np.isnan(preferences)]
-        target_ids = target_ids[~np.isnan(preferences)]
+        target_item_ids = target_item_ids[~np.isnan(preferences)]
 
         sorted_preferences = np.lexsort((preference_values,))[::-1]
 
@@ -641,13 +579,73 @@ class UserBasedRecommender(UserRecommender):
                 else sorted_preferences
 
         if self.with_preference:
-            top_n_recs = [(target_ids[ind], \
+            top_n_recs = [(target_item_ids[ind], \
                      preferences[ind]) for ind in sorted_preferences]
         else:
-            top_n_recs = [target_ids[ind]
+            top_n_recs = [target_item_ids[ind]
                  for ind in sorted_preferences]
 
         return top_n_recs
+
+    def estimate_preference(self, user_id, item_id, **params):
+        """
+        Parameters
+        ----------
+        user_id: int or string
+                 User for which recommendations are to be computed.
+
+        item_id:  int or string
+            ID of item for which wants to find the estimated preference.
+
+        Returns
+        -------
+        Return an estimated preference if the user has not expressed a
+        preference for the item, or else the user's actual preference for the
+        item. If a preference cannot be estimated, returns None.
+        """
+
+        preference = self.model.preference_value(user_id, item_id)
+        if not np.isnan(preference):
+            return preference
+
+        n_similarity = params.pop('n_similarity', 'user_similarity')
+        distance = params.pop('distance', self.similarity.distance)
+        nhood_size = params.pop('nhood_size', None)
+
+        nearest_neighbors = self.neighborhood_strategy.user_neighborhood(user_id, self.model, n_similarity, distance,
+                                                                         nhood_size, **params)
+
+        preference = 0.0
+        total_similarity = 0.0
+
+        similarities = np.array([self.similarity.get_similarity(user_id, to_user_id) for to_user_id in nearest_neighbors]).flatten()
+
+        prefs = np.array([self.model.preference_value(to_user_id, item_id) for to_user_id in nearest_neighbors])
+
+        prefs = prefs[~ np.isnan(prefs)]
+        similarities = similarities[~ np.isnan(prefs)]
+
+        prefs_sim = np.sum(prefs[~ np.isnan(similarities)] * similarities[~ np.isnan(similarities)])
+        total_similarity = np.sum(similarities)
+
+        # Throw out the estimate if it was based on no data points,
+        # of course, but also if based on just one. This is a bit
+        # of a band-aid on the 'stock' item-based algorithm for
+        # the moment. The reason is that in this case the estimate
+        # is, simply, the user's rating for one item that happened
+        # to have a defined similarity. The similarity score doesn't
+        # matter, and that seems like a bad situation.
+        if total_similarity == 0.0 or not similarities[~ np.isnan(similarities)].size:
+            return np.nan
+
+        estimated = prefs_sim / total_similarity
+
+        if self.capper:
+            max_p = self.model.maximum_preference_value()
+            min_p = self.model.minimum_preference_value()
+            estimated = max_p if estimated > max_p else min_p if estimated < min_p else estimated
+
+        return estimated
 
     def recommended_because(self, user_id, item_id, how_many=None, **params):
         '''

@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 """
 This module contains functions and classes for computing similarities across
@@ -14,25 +14,28 @@ from ..metrics.pairwise import loglikehood_coefficient
 
 
 def find_common_elements(source_preferences, target_preferences):
-    ''' Returns the preferences from both vectors '''
+    """
+    Returns the preferences from both vectors
+    """
+
     src = dict(source_preferences)
     tgt = dict(target_preferences)
 
     inter = np.intersect1d(src.keys(), tgt.keys())
 
-    common_preferences = zip(*[(src[item], tgt[item]) for item in inter \
-            if not np.isnan(src[item]) and not np.isnan(tgt[item])])
+    common_preferences_list = [(src[item], tgt[item]) for item in inter if not np.isnan(src[item]) and not np.isnan(tgt[item])]
+    common_preferences = zip(*common_preferences_list)
     if common_preferences:
         return np.asarray([common_preferences[0]]), np.asarray([common_preferences[1]])
     else:
-            return np.asarray([[]]), np.asarray([[]])
+        return np.asarray([[]]), np.asarray([[]])
 
 ###############################################################################
 # User Similarity
 
 
 class UserSimilarity(BaseSimilarity):
-    '''
+    """
     Returns the degree of similarity, of two users, based on the their preferences.
     Implementations of this class define a notion of similarity between two users.
     Implementations should  return values in the range 0.0 to 1.0, with 1.0 representing
@@ -91,9 +94,11 @@ class UserSimilarity(BaseSimilarity):
     [('Marcel Caraciolo', 1.0), ('Sheldom', 0.99127582693458016),
       ('Lorena Abreu', 0.98658676452792504)]
 
-   '''
+    """
 
     def __init__(self, model, distance, num_best=None):
+        self.model = model
+        self.distance = distance
         BaseSimilarity.__init__(self, model, distance, num_best)
 
     def get_similarity(self, source_id, target_id):
@@ -101,26 +106,24 @@ class UserSimilarity(BaseSimilarity):
         target_preferences = self.model.preferences_from_user(target_id)
 
         if self.model.has_preference_values():
-            source_preferences, target_preferences = \
-                find_common_elements(source_preferences, target_preferences)
+            source_preferences, target_preferences = find_common_elements(source_preferences, target_preferences)
 
         if source_preferences.ndim == 1 and target_preferences.ndim == 1:
             source_preferences = np.asarray([source_preferences])
             target_preferences = np.asarray([target_preferences])
 
         if self.distance == loglikehood_coefficient:
-            return self.distance(self.model.items_count(), \
-                source_preferences, target_preferences) \
+            return self.distance(self.model.items_count(), source_preferences, target_preferences) \
                 if not source_preferences.shape[1] == 0 and \
                 not target_preferences.shape[1] == 0 else np.array([[np.nan]])
 
-        #evaluate the similarity between the two users vectors.
+        # evaluate the similarity between the two users vectors.
         return self.distance(source_preferences, target_preferences) \
             if not source_preferences.shape[1] == 0 \
                 and not target_preferences.shape[1] == 0 else np.array([[np.nan]])
 
     def get_similarities(self, source_id):
-        return[(other_id, self.get_similarity(source_id, other_id))  for other_id, v in self.model]
+        return [(other_id, self.get_similarity(source_id, other_id)) for other_id, _ in self.model]
 
     def __iter__(self):
         """

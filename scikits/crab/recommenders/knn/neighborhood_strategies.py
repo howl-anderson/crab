@@ -56,7 +56,7 @@ class AllNeighborsStrategy(BaseUserNeighborhoodStrategy):
 
 
 class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
-    '''
+    """
     Returns
     --------
     Returns the neighborhood consisting of the nearest n
@@ -82,23 +82,23 @@ class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
     nhood_size: int
         The neighborhood size (default = None all users)
 
-    '''
+    """
+
     def __init__(self):
         self.similarity = None
 
     def _sampling(self, data_model, sampling_rate):
-        #TODO: Still to be implemented in a best way
+        # TODO: Still to be implemented in a best way
         return data_model
 
-    def _set_similarity(self, data_model, similarity, distance, nhood_size):
-        if not isinstance(self.similarity, UserSimilarity) \
-             or not distance == self.similarity.distance:
-            nhood_size = nhood_size if not nhood_size else nhood_size + 1
-            self.similarity = UserSimilarity(data_model, distance, nhood_size)
+    def _set_similarity(self, data_model, similarity, distance, neighborhood_size):
+        if not isinstance(self.similarity, UserSimilarity) or not distance == self.similarity.distance:
+            neighborhood_size = neighborhood_size if not neighborhood_size else neighborhood_size + 1
+            self.similarity = UserSimilarity(data_model, distance, neighborhood_size)
 
     def user_neighborhood(self, user_id, data_model, n_similarity='user_similarity',
-             distance=None, nhood_size=None, **params):
-        '''
+                          distance=None, neighborhood_size=None, **params):
+        """
         Computes a neighborhood consisting of the  n users to a given
         user based on the strategy implemented in this method.
         Parameters
@@ -113,7 +113,7 @@ class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
         n_similarity: string
             The similarity to compute the neighborhood (Default = 'user_similarity')
 
-        nhood_size: int
+        neighborhood_size: int
             The neighborhood size (default = None all users)
 
         Optional Parameters
@@ -125,16 +125,17 @@ class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
             percentage of users to consider when building neighborhood
                 (default = 1)
 
-        '''
+        """
+
         minimal_similarity = params.get('minimal_similarity', 0.0)
         sampling_rate = params.get('sampling_rate', 1.0)
 
         data_model = self._sampling(data_model, sampling_rate)
-        #set the nhood_size at Similarity , and use Similarity to get the top_users
+        # set the neighborhood_size at Similarity , and use Similarity to get the top_users
         if distance is None:
             distance = euclidean_distances
         if n_similarity == 'user_similarity':
-            self._set_similarity(data_model, n_similarity, distance, nhood_size)
+            self._set_similarity(data_model, n_similarity, distance, neighborhood_size)
         else:
             raise ValueError('similarity argument must be user_similarity')
 

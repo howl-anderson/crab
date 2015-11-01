@@ -72,7 +72,7 @@ def euclidean_distances(X, Y, squared=False, inverse=True):
         return ssd.cdist(X, Y, 'sqeuclidean')
 
     XY = ssd.cdist(X, Y)
-    return  np.divide(1.0, (1.0 + XY)) if inverse else XY
+    return np.divide(1.0, (1.0 + XY)) if inverse else XY
 
 euclidian_distances = euclidean_distances  # both spelling for backward compat
 
@@ -109,7 +109,7 @@ def pearson_correlation(X, Y):
     array([[ 0.39605902],
                [ 0.39605902]])
     """
-    # should not need X_norm_squared because if you could precompute that as
+    # should not need X_norm_squared because if you could pre-compute that as
     # well as Y, then you should just pre-compute the output and not even
     # call this function.
     if X is Y:

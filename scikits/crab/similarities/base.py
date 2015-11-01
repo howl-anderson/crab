@@ -70,9 +70,9 @@ class BaseSimilarity(object):
         """
         all_sims = self.get_similarities(source_id)
 
-        #return either all similarities as a list,
-        #or only self.num_best most similar,
-        #depending on settings from the constructor
+        # return either all similarities as a list,
+        # or only self.num_best most similar,
+        # depending on settings from the constructor
 
         tops = sorted(all_sims, key=lambda x: -x[1])
 

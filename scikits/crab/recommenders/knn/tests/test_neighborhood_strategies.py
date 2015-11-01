@@ -55,7 +55,7 @@ def test_NearestNeighborsStrategy():
     strategy = NearestNeighborsStrategy()
     assert_array_equal(np.array(['Leopoldo Pires', 'Marcel Caraciolo'],
             dtype='|S16'), strategy.user_neighborhood(user_id='Lorena Abreu', data_model=model,
-                nhood_size=2))
+                neighborhood_size=2))
 
     #Test with minimal_similarity
     model = MatrixPreferenceDataModel(movies)
