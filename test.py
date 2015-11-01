@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 
 from scikits.crab import datasets
 movies = datasets.load_sample_movies()
@@ -20,7 +21,6 @@ print movies.item_ids
 #  5: 'The Night Listener',
 #  6: 'Just My Luck'}
 
-
 from scikits.crab.models import MatrixPreferenceDataModel
 # Build the model
 model = MatrixPreferenceDataModel(movies.data)
@@ -34,6 +34,6 @@ from scikits.crab.recommenders.knn import UserBasedRecommender
 # Build the User based recommender
 recommender = UserBasedRecommender(model, similarity, with_preference=True)
 
-#Recommend items for the user 5 (Toby)
+# Recommend items for the user 5 (Toby)
 print recommender.recommend(5)
 # [(5, 3.3477895267131013), (1, 2.8572508984333034), (6, 2.4473604699719846)]

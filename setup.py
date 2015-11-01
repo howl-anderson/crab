@@ -25,13 +25,13 @@ def configuration(parent_package='', top_path=None):
 
     from numpy.distutils.misc_util import Configuration
     config = Configuration(None, parent_package, top_path,
-             namespace_packages=['scikits'])
+                           namespace_packages=['scikits'])
 
     config.set_options(
-                ignore_setup_xxx_py=True,
-                assume_default_configuration=True,
-                delegate_options_to_subpackages=True,
-                quiet=True,
+        ignore_setup_xxx_py=True,
+        assume_default_configuration=True,
+        delegate_options_to_subpackages=True,
+        quiet=True,
     )
 
     subpackages = ['.'.join(i[0].split('/')) for i in os.walk('scikits') if '__init__.py' in i[2]]
@@ -40,26 +40,30 @@ def configuration(parent_package='', top_path=None):
 
     return config
 
+
 if __name__ == "__main__":
     setup(configuration=configuration,
-        name=DISTNAME,
-        version=VERSION,
-        include_package_data=True,
-        package_data={
-            'scikits': [
-                'crab/datasets/data/*.*',
-                'crab/datasets/descr/*.*',
-                ]
-            },
-        install_requires='numpy',
-        maintainer=MAINTAINER,
-        maintainer_email=MAINTAINER_EMAIL,
-        description=DESCRIPTION,
-        license=LICENSE,
-        url=URL,
-        download_url=DOWNLOAD_URL,
-        long_description=LONG_DESCRIPTION,
-        zip_safe=False,  # the package can run out of an .egg file
+          name=DISTNAME,
+          version=VERSION,
+          include_package_data=True,
+          package_data={
+              'scikits': [
+                  'crab/datasets/data/*.*',
+                  'crab/datasets/descr/*.*',
+              ]
+          },
+          install_requires=[
+              'numpy',
+              'scikit-learn'
+          ],
+          maintainer=MAINTAINER,
+          maintainer_email=MAINTAINER_EMAIL,
+          description=DESCRIPTION,
+          license=LICENSE,
+          url=URL,
+          download_url=DOWNLOAD_URL,
+          long_description=LONG_DESCRIPTION,
+          zip_safe=False,  # the package can run out of an .egg file
           classifiers=[
               'Intended Audience :: Science/Research',
               'Intended Audience :: Developers',
@@ -72,4 +76,4 @@ if __name__ == "__main__":
               'Operating System :: POSIX',
               'Operating System :: Unix',
               'Operating System :: MacOS'
-             ])
+          ])
