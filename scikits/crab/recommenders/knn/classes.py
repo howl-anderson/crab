@@ -215,8 +215,7 @@ class ItemBasedRecommender(ItemRecommender):
         the preference and could possibly be recommended to the user.
 
         '''
-        return self.items_selection_strategy.candidate_items(user_id, \
-                            self.model)
+        return self.items_selection_strategy.candidate_items(user_id, self.model)
 
     def _top_matches(self, source_id, target_ids, how_many=None, **params):
         '''
@@ -253,8 +252,7 @@ class ItemBasedRecommender(ItemRecommender):
                 else sorted_preferences
 
         if self.with_preference:
-            top_n_recs = [(target_ids[ind], \
-                     preferences[ind]) for ind in sorted_preferences]
+            top_n_recs = [(target_ids[ind], preferences[ind]) for ind in sorted_preferences]
         else:
             top_n_recs = [target_ids[ind]
                  for ind in sorted_preferences]
@@ -281,8 +279,7 @@ class ItemBasedRecommender(ItemRecommender):
         similarities = self.similarity[item_id]
         self.similarity.num_best = old_how_many
 
-        return np.array([item for item, pref in similarities \
-            if item != item_id and not np.isnan(pref)])
+        return np.array([item for item, pref in similarities if item != item_id and not np.isnan(pref)])
 
     def recommended_because(self, user_id, item_id, how_many=None, **params):
         '''
@@ -342,9 +339,6 @@ class ItemBasedRecommender(ItemRecommender):
 
         return top_n_recs
 
-
-#=====================
-#User Based Recommender
 
 class UserBasedRecommender(UserRecommender):
     """
@@ -440,7 +434,7 @@ class UserBasedRecommender(UserRecommender):
     """
 
     def __init__(self, model, similarity, neighborhood_strategy=None, capper=True, with_preference=False):
-        UserRecommender.__init__(self, model, with_preference)
+        super(UserBasedRecommender, self).__init__(model, with_preference)
         self.similarity = similarity
         self.capper = capper
         if neighborhood_strategy is None:
@@ -448,7 +442,7 @@ class UserBasedRecommender(UserRecommender):
         else:
             self.neighborhood_strategy = neighborhood_strategy
 
-    def all_other_items(self, user_id, **params):
+    def all_other_items(self, user_id, **kwargs):
         """
         Parameters
         ----------
@@ -480,12 +474,12 @@ class UserBasedRecommender(UserRecommender):
 
         """
 
-        n_similarity = params.pop('n_similarity', 'user_similarity')
-        distance = params.pop('distance', self.similarity.distance)
-        nhood_size = params.pop('nhood_size', None)
+        n_similarity = kwargs.pop('n_similarity', 'user_similarity')
+        distance = kwargs.pop('distance', self.similarity.distance)
+        nhood_size = kwargs.pop('nhood_size', None)
 
         nearest_neighbors = self.neighborhood_strategy.user_neighborhood(user_id, self.model, n_similarity, distance,
-                                                                         nhood_size, **params)
+                                                                         nhood_size, **kwargs)
 
         items_from_user_id = self.model.items_from_user(user_id)
         possible_items = []
@@ -495,8 +489,6 @@ class UserBasedRecommender(UserRecommender):
         possible_items = np.unique(np.array(possible_items).flatten())
 
         return np.setdiff1d(possible_items, items_from_user_id)
-
-
 
     def most_similar_users(self, user_id, how_many=None):
         """
@@ -514,14 +506,13 @@ class UserBasedRecommender(UserRecommender):
 
         old_how_many = self.similarity.num_best
         # +1 since it returns the identity.
-        self.similarity.num_best = how_many + 1 \
-                    if how_many is not None else None
+        self.similarity.num_best = how_many + 1 if how_many is not None else None
         similarities = self.similarity[user_id]
         self.similarity.num_best = old_how_many
         return np.array([to_user_id for to_user_id, pref in similarities \
             if user_id != to_user_id and not np.isnan(pref)])
 
-    def recommend(self, user_id, how_many=None, **params):
+    def recommend(self, user_id, how_many=None, **kwargs):
         """
         Return a list of recommended items, ordered from most strongly
         recommend to least.
@@ -535,15 +526,15 @@ class UserBasedRecommender(UserRecommender):
 
         """
 
-        self.set_params(**params)
+        self.set_params(**kwargs)
 
-        candidate_items = self.all_other_items(user_id, **params)
+        candidate_items = self.all_other_items(user_id, **kwargs)
 
         recommendable_items = self._top_matches(user_id, candidate_items, how_many)
 
         return recommendable_items
 
-    def _top_matches(self, source_id, target_item_ids, how_many=None, **params):
+    def _top_matches(self, source_id, target_item_ids, how_many=None, **kwargs):
         """
         Parameters
         ----------
@@ -579,15 +570,14 @@ class UserBasedRecommender(UserRecommender):
                 else sorted_preferences
 
         if self.with_preference:
-            top_n_recs = [(target_item_ids[ind], \
-                     preferences[ind]) for ind in sorted_preferences]
+            top_n_recs = [(target_item_ids[ind], preferences[ind]) for ind in sorted_preferences]
         else:
             top_n_recs = [target_item_ids[ind]
                  for ind in sorted_preferences]
 
         return top_n_recs
 
-    def estimate_preference(self, user_id, item_id, **params):
+    def estimate_preference(self, user_id, item_id, **kwargs):
         """
         Parameters
         ----------
@@ -608,12 +598,12 @@ class UserBasedRecommender(UserRecommender):
         if not np.isnan(preference):
             return preference
 
-        n_similarity = params.pop('n_similarity', 'user_similarity')
-        distance = params.pop('distance', self.similarity.distance)
-        nhood_size = params.pop('nhood_size', None)
+        n_similarity = kwargs.pop('n_similarity', 'user_similarity')
+        distance = kwargs.pop('distance', self.similarity.distance)
+        nhood_size = kwargs.pop('nhood_size', None)
 
         nearest_neighbors = self.neighborhood_strategy.user_neighborhood(user_id, self.model, n_similarity, distance,
-                                                                         nhood_size, **params)
+                                                                         nhood_size, **kwargs)
 
         preference = 0.0
         total_similarity = 0.0

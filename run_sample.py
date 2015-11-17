@@ -1,9 +1,12 @@
 # -*- coding:utf-8 -*-
 
 from scikits.crab import datasets
-movies = datasets.load_sample_movies()
-songs = datasets.load_sample_songs()
+from scikits.crab.models import MatrixPreferenceDataModel
+from scikits.crab.metrics import pearson_correlation
+from scikits.crab.similarities import UserSimilarity
+from scikits.crab.recommenders.knn import UserBasedRecommender
 
+songs = datasets.load_sample_songs()
 data = songs
 
 print data.user_ids
@@ -23,19 +26,17 @@ print data.item_ids
 #  5: 'The Night Listener',
 #  6: 'Just My Luck'}
 
-from scikits.crab.models import MatrixPreferenceDataModel
-# Build the model
+
+# Build the data model
 model = MatrixPreferenceDataModel(data.data)
 
-from scikits.crab.metrics import pearson_correlation
-from scikits.crab.similarities import UserSimilarity
 # Build the similarity
 similarity = UserSimilarity(model, pearson_correlation)
 
-from scikits.crab.recommenders.knn import UserBasedRecommender
+
 # Build the User based recommender
 recommender = UserBasedRecommender(model, similarity, with_preference=True)
 
 # Recommend items for the user 5 (Toby)
-print recommender.recommend(5)
+print recommender.recommend(5, how_many=3)
 # [(5, 3.3477895267131013), (1, 2.8572508984333034), (6, 2.4473604699719846)]

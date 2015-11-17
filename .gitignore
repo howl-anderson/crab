@@ -1,10 +1,9 @@
 *.pyc
 *.tmproj
 *.swp
-<<<<<<< HEAD
 *~
 .#*
 .DS_Store
-=======
 *.pyc
->>>>>>> metrics_pairwise
+.idea/
+test_data/

@@ -3,12 +3,13 @@
 """
 Base Data Models.
 """
+
+
 # Authors: Bruno Melo <bruno@muricoca.com>
 # License: BSD Style
 
 
 class BaseDataModel(object):
-
     def user_ids(self):
         '''
         Returns
@@ -33,8 +34,8 @@ class BaseDataModel(object):
                  int or string
 
         order_by_id: bool
-                If True order by user_id otherwise by the preference values.
-                default = True
+                    If True order by user_id otherwise by the preference values.
+                    default = True
         Returns
         ---------
         Return user's preferences only the values.
@@ -49,8 +50,8 @@ class BaseDataModel(object):
                  int or string
 
         order_by_id: bool
-                If True order by user_id otherwise by the preference values.
-                default = True
+                    If True order by user_id otherwise by the preference values.
+                    default = True
         Returns
         ---------
         Return user's preferences, ordered by user id (if order_by_id is True)
@@ -63,7 +64,7 @@ class BaseDataModel(object):
         Parameters
         ----------
         user_id: user id in the model
-                int or string
+                 int or string
 
         Returns
         -------
@@ -76,11 +77,11 @@ class BaseDataModel(object):
         Parameters
         ----------
         item_id: id of the item in the model
-                string or int
+                 string or int
 
         order_by_id: bool
-                If True order by user_id otherwise by the preference values.
-                default = True
+                     If True order by user_id otherwise by the preference values.
+                     default = True
         Returns
         ----------
         Return all existing Preferences expressed for that item,

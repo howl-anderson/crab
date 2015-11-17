@@ -2,9 +2,11 @@
 
 import os
 
-descr = """Crab is a flexible, fast recommender engine for Python. The engine
+descr = """
+Crab is a flexible, fast recommender engine for Python. The engine
   aims to provide a rich set of components from which you can construct a
-  customized recommender system from a set of algorithms."""
+  customized recommender system from a set of algorithms.
+  """
 
 DISTNAME = 'scikits.crab'
 DESCRIPTION = 'A recommender engine for Python.'
@@ -53,13 +55,16 @@ if __name__ == "__main__":
               ]
           },
           install_requires=[
+              'scipy',
               'numpy',
-              'scikit-learn'
+              'scikit-learn',
+              'nose'
           ],
           maintainer=MAINTAINER,
           maintainer_email=MAINTAINER_EMAIL,
           description=DESCRIPTION,
           license=LICENSE,
+          test_suite='nose.collector',
           url=URL,
           download_url=DOWNLOAD_URL,
           long_description=LONG_DESCRIPTION,

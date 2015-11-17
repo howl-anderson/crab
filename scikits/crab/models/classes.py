@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 """
 Several Basic Data models.
@@ -16,8 +16,6 @@ import logging
 logger = logging.getLogger('crab')
 
 
-###############################################################################
-# MatrixDataModel
 class MatrixPreferenceDataModel(BaseDataModel):
     """
     Matrix with preferences based Data model
@@ -84,7 +82,7 @@ class MatrixPreferenceDataModel(BaseDataModel):
     """
 
     def __init__(self, dataset):
-        BaseDataModel.__init__(self)
+        super(MatrixPreferenceDataModel, self).__init__()
         self.dataset = dataset
 
         self._user_ids = None
@@ -94,16 +92,6 @@ class MatrixPreferenceDataModel(BaseDataModel):
         self.min_pref = None
 
         self.build_model()
-
-    def __getitem__(self, user_id):
-        return self.preferences_from_user(user_id)
-
-    def __iter__(self):
-        for index, user in enumerate(self.user_ids()):
-            yield user, self[user]
-
-    def __len__(self):
-        return self.index.shape
 
     def build_model(self):
         """
@@ -132,10 +120,11 @@ class MatrixPreferenceDataModel(BaseDataModel):
 
         self.index = np.empty(shape=(self._user_ids.size, self._item_ids.size))
         for user_index, user_id in enumerate(self._user_ids):
+            # TODO: need better progress
             if user_index % 2 == 0:
                 logger.debug("PROGRESS: at user_id #%i/%i" % (user_index, self._user_ids.size))
             for item_index, item_id in enumerate(self._item_ids):
-                value = self.dataset[user_id].get(item_id, np.NaN) #Is it to be np.NaN or 0 ?!!
+                value = self.dataset[user_id].get(item_id, np.NaN)  # Is it to be np.NaN or 0 ?!!
                 self.index[user_index, item_index] = value
 
         if self.index.size:
@@ -174,6 +163,7 @@ class MatrixPreferenceDataModel(BaseDataModel):
         """
 
         user_id_loc = np.where(self._user_ids == user_id)
+
         if not user_id_loc[0].size:
             # user_id not found
             raise UserNotFoundError
@@ -276,7 +266,7 @@ class MatrixPreferenceDataModel(BaseDataModel):
         """
 
         item_id_loc = np.where(self._item_ids == item_id)
-        if not item_id_loc[0].size:
+        if not item_id_loc.size:
             # item_id not found
             raise ItemNotFoundError('Item not found')
         preferences = self.index[:, item_id_loc]
@@ -405,9 +395,17 @@ class MatrixPreferenceDataModel(BaseDataModel):
     def __str__(self):
         return unicode(self).encode('utf-8')
 
+    def __getitem__(self, user_id):
+        return self.preferences_from_user(user_id)
 
-###############################################################################
-# MatrixBooleanDataModel
+    def __iter__(self):
+        for index, user in enumerate(self.user_ids()):
+            yield user, self[user]
+
+    def __len__(self):
+        return self.index.shape
+
+
 class MatrixBooleanPrefDataModel(BaseDataModel):
     """
     Matrix with preferences based Boolean Data model
@@ -474,7 +472,7 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
           dtype='|S18')
     """
     def __init__(self, dataset):
-        BaseDataModel.__init__(self)
+        super(MatrixBooleanPrefDataModel, self).__init__()
         self.dataset = self._load_dataset(dataset.copy())
         self.build_model()
 
@@ -496,23 +494,13 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
 
         return dataset
 
-    def __getitem__(self, user_id):
-        return self.preferences_from_user(user_id)
-
-    def __iter__(self):
-        for index, user in enumerate(self.user_ids()):
-            yield user, self[user]
-
-    def __len__(self):
-        return self.index.shape
-
     def build_model(self):
-        '''
+        """
         Returns
         -------
         self:
              Build the data model
-        '''
+        """
 
         self._user_ids = np.asanyarray(self.dataset.keys())
         self._user_ids.sort()
@@ -537,25 +525,25 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
                 self.index[userno, itemno] = r
 
     def user_ids(self):
-        '''
+        """
         Returns
         -------
         self.user_ids:  numpy array of shape [n_user_ids]
                         Return all user ids in the model, in order
-        '''
+        """
         return self._user_ids
 
     def item_ids(self):
-        '''
+        """
         Returns
         -------
         self.item_ids:  numpy array of shape [n_item_ids]
                     Return all item ids in the model, in order
-        '''
+        """
         return self._item_ids
 
     def preference_values_from_user(self, user_id):
-        '''
+        """
         Returns
         --------
         Return user's preferences values as an array
@@ -563,10 +551,10 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
         Notes
         --------
         This method is a particular method in MatrixDataModel
-        '''
+        """
         user_id_loc = np.where(self._user_ids == user_id)
         if not user_id_loc[0].size:
-            #user_id not found
+            # user_id not found
             raise UserNotFoundError
 
         preferences = self.index[user_id_loc]
@@ -574,14 +562,14 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
         return preferences
 
     def preferences_from_user(self, user_id, order_by_id=True):
-        '''
+        """
         Returns
         -------
         self.user_preferences :  list [(item_id,preference)]
          Return user's preferences, ordered by user ID (if order_by_id is True)
          or by the preference values (if order_by_id is False), as an array.
 
-        '''
+        """
         preferences = self.preference_values_from_user(user_id)
 
         preferences = preferences.flatten()
@@ -653,10 +641,10 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
         item_id_loc = np.where(self._item_ids == item_id)
         user_id_loc = np.where(self._user_ids == user_id)
 
-        if not user_id_loc[0].size:
+        if not user_id_loc.size:
             raise UserNotFoundError('user_id in the model not found')
 
-        if not item_id_loc[0].size:
+        if not item_id_loc.size:
             raise ItemNotFoundError('item_id in the model not found')
 
         return 1.0 if self.index[user_id_loc, item_id_loc].flatten()[0] else np.NaN
@@ -720,8 +708,7 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
         return 0.0
 
     def __repr__(self):
-        return "<MatrixBooleanPrefDataModel (%d by %d)>" % (self.index.shape[0],
-                        self.index.shape[1])
+        return "<MatrixBooleanPrefDataModel (%d by %d)>" % (self.index.shape[0], self.index.shape[1])
 
     def _repr_matrix(self, matrix):
         s = ""
@@ -775,3 +762,13 @@ class MatrixBooleanPrefDataModel(BaseDataModel):
 
     def __str__(self):
         return unicode(self).encode('utf-8')
+
+    def __getitem__(self, user_id):
+        return self.preferences_from_user(user_id)
+
+    def __iter__(self):
+        for index, user in enumerate(self.user_ids()):
+            yield user, self[user]
+
+    def __len__(self):
+        return self.index.shape

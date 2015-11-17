@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 """Utilities to evaluate pairwise distances or metrics between 2
 sets of points.

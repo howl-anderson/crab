@@ -5,56 +5,62 @@ from ..basic_similarities import UserSimilarity, ItemSimilarity, find_common_ele
 from ...metrics.pairwise import cosine_distances, \
     pearson_correlation, euclidean_distances, manhattan_distances, jaccard_coefficient, \
     sorensen_coefficient, loglikehood_coefficient
-from ...models.classes import  MatrixPreferenceDataModel, \
-     MatrixBooleanPrefDataModel
+from ...models.classes import MatrixPreferenceDataModel, \
+    MatrixBooleanPrefDataModel
 
-#Simple Movies DataSet
+# Simple Movies DataSet
 
 movies = {'Marcel Caraciolo': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.5,
- 'Just My Luck': 3.0, 'Superman Returns': 3.5, 'You, Me and Dupree': 2.5,
- 'The Night Listener': 3.0},
-'Luciana Nunes': {'Lady in the Water': 3.0, 'Snakes on a Plane': 3.5,
- 'Just My Luck': 1.5, 'Superman Returns': 5.0, 'The Night Listener': 3.0,
- 'You, Me and Dupree': 3.5},
-'Leopoldo Pires': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.0,
- 'Superman Returns': 3.5, 'The Night Listener': 4.0},
-'Lorena Abreu': {'Snakes on a Plane': 3.5, 'Just My Luck': 3.0,
- 'The Night Listener': 4.5, 'Superman Returns': 4.0,
- 'You, Me and Dupree': 2.5},
-'Steve Gates': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0,
- 'Just My Luck': 2.0, 'Superman Returns': 3.0, 'The Night Listener': 3.0,
- 'You, Me and Dupree': 2.0},
-'Sheldom': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0,
- 'The Night Listener': 3.0, 'Superman Returns': 5.0, 'You, Me and Dupree': 3.5},
-'Penny Frewman': {'Snakes on a Plane': 4.5, 'You, Me and Dupree': 1.0, 'Superman Returns': 4.0},
-'Maria Gabriela': {}}
+                               'Just My Luck': 3.0, 'Superman Returns': 3.5, 'You, Me and Dupree': 2.5,
+                               'The Night Listener': 3.0},
+          'Luciana Nunes': {'Lady in the Water': 3.0, 'Snakes on a Plane': 3.5,
+                            'Just My Luck': 1.5, 'Superman Returns': 5.0, 'The Night Listener': 3.0,
+                            'You, Me and Dupree': 3.5},
+          'Leopoldo Pires': {'Lady in the Water': 2.5, 'Snakes on a Plane': 3.0,
+                             'Superman Returns': 3.5, 'The Night Listener': 4.0},
+          'Lorena Abreu': {'Snakes on a Plane': 3.5, 'Just My Luck': 3.0,
+                           'The Night Listener': 4.5, 'Superman Returns': 4.0,
+                           'You, Me and Dupree': 2.5},
+          'Steve Gates': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0,
+                          'Just My Luck': 2.0, 'Superman Returns': 3.0, 'The Night Listener': 3.0,
+                          'You, Me and Dupree': 2.0},
+          'Sheldom': {'Lady in the Water': 3.0, 'Snakes on a Plane': 4.0,
+                      'The Night Listener': 3.0, 'Superman Returns': 5.0, 'You, Me and Dupree': 3.5},
+          'Penny Frewman': {'Snakes on a Plane': 4.5, 'You, Me and Dupree': 1.0, 'Superman Returns': 4.0},
+          'Maria Gabriela': {}}
 
 
 def test_find_common_elements():
-    #MatrixModel
+    # MatrixModel
     model_matrix = MatrixPreferenceDataModel(movies)
     source_preferences = model_matrix.preferences_from_user('Marcel Caraciolo')
     target_preferences = model_matrix.preferences_from_user('Leopoldo Pires')
-    assert_array_equal(np.array([[2.5, 3.5, 3.5, 3.0]]), find_common_elements(source_preferences, target_preferences)[0])
-    assert_array_equal(np.array([[2.5, 3.0, 3.5, 4.0]]), find_common_elements(source_preferences, target_preferences)[1])
+    assert_array_equal(np.array([[2.5, 3.5, 3.5, 3.0]]),
+                       find_common_elements(source_preferences, target_preferences)[0])
+    assert_array_equal(np.array([[2.5, 3.0, 3.5, 4.0]]),
+                       find_common_elements(source_preferences, target_preferences)[1])
 
-    #MatrixModel
+    # MatrixModel
     source_preferences = model_matrix.preferences_from_user('Marcel Caraciolo')
     target_preferences = model_matrix.preferences_from_user('Luciana Nunes')
-    assert_array_equal(np.array([[3.,  2.5,  3.5,  3.5,  3.,  2.5]]), find_common_elements(source_preferences, target_preferences)[0])
-    assert_array_equal(np.array([[1.5,  3.,  3.5,  5.,  3.,  3.5]]), find_common_elements(source_preferences, target_preferences)[1])
+    assert_array_equal(np.array([[3., 2.5, 3.5, 3.5, 3., 2.5]]),
+                       find_common_elements(source_preferences, target_preferences)[0])
+    assert_array_equal(np.array([[1.5, 3., 3.5, 5., 3., 3.5]]),
+                       find_common_elements(source_preferences, target_preferences)[1])
 
-    #MatrixModel
+    # MatrixModel
     source_preferences = model_matrix.preferences_from_user('Marcel Caraciolo')
     target_preferences = model_matrix.preferences_from_user('Maria Gabriela')
     assert_array_equal(np.array([[]]), find_common_elements(source_preferences, target_preferences)[0])
     assert_array_equal(np.array([[]]), find_common_elements(source_preferences, target_preferences)[1])
 
-    #MatrixModel
+    # MatrixModel
     source_preferences = model_matrix.preferences_for_item('Snakes on a Plane')
     target_preferences = model_matrix.preferences_for_item('Superman Returns')
-    assert_array_equal(np.array([[3.,  3.5,  3.5,  3.5,  4.5,  4.,  4.]]), find_common_elements(source_preferences, target_preferences)[0])
-    assert_array_equal(np.array([[3.5,  4.,  5.,  3.5,  4.,  5.,  3.]]), find_common_elements(source_preferences, target_preferences)[1])
+    assert_array_equal(np.array([[3., 3.5, 3.5, 3.5, 4.5, 4., 4.]]),
+                       find_common_elements(source_preferences, target_preferences)[0])
+    assert_array_equal(np.array([[3.5, 4., 5., 3.5, 4., 5., 3.]]),
+                       find_common_elements(source_preferences, target_preferences)[1])
 
     model_matrix.set_preference('Maria Gabriela', 'Back to the Future', 3.5)
 
@@ -65,8 +71,8 @@ def test_find_common_elements():
 
 
 def test_get__item___UserSimilarity():
-    #Cosine #With limits
-    #MatrixModel
+    # Cosine #With limits
+    # MatrixModel
     model = MatrixPreferenceDataModel(movies)
     similarity = UserSimilarity(model, cosine_distances, 3)
 
@@ -79,7 +85,7 @@ def test_get__item___UserSimilarity():
     assert_array_almost_equal(np.array([[0.98658676]]), similarity['Marcel Caraciolo'][2][1])
     assert_equals('Lorena Abreu', similarity['Marcel Caraciolo'][2][0])
 
-    #Pearson Without limits
+    # Pearson Without limits
     similarity = UserSimilarity(model, pearson_correlation)
 
     assert_array_almost_equal(np.array([[1.]]), similarity['Leopoldo Pires'][0][1])
@@ -106,7 +112,7 @@ def test_get__item___UserSimilarity():
     assert_array_almost_equal(np.array([[np.nan]]), similarity['Leopoldo Pires'][7][1])
     assert_equals('Maria Gabriela', similarity['Leopoldo Pires'][7][0])
 
-    #Euclidean Without limits
+    # Euclidean Without limits
     similarity = UserSimilarity(model, euclidean_distances)
 
     assert_array_equal(np.array([[1.]]), similarity['Steve Gates'][0][1])
@@ -133,7 +139,7 @@ def test_get__item___UserSimilarity():
     assert_array_almost_equal(np.array([[np.nan]]), similarity['Steve Gates'][7][1])
     assert_equals('Maria Gabriela', similarity['Steve Gates'][7][0])
 
-    #Manhattan Without limits
+    # Manhattan Without limits
     similarity = UserSimilarity(model, manhattan_distances, 0)
 
     assert_equals([], similarity['Steve Gates'])
@@ -164,7 +170,7 @@ def test_get__item___UserSimilarity():
     assert_array_almost_equal(np.array([[np.nan]]), similarity['Steve Gates'][7][1])
     assert_equals('Maria Gabriela', similarity['Steve Gates'][7][0])
 
-    #MatrixBooleanModel
+    # MatrixBooleanModel
     model = MatrixBooleanPrefDataModel(movies)
     similarity = UserSimilarity(model, jaccard_coefficient, 3)
     assert_array_equal(np.array([[1.]]), similarity['Marcel Caraciolo'][0][1])
@@ -176,7 +182,7 @@ def test_get__item___UserSimilarity():
     assert_array_almost_equal(np.array([[1.]]), similarity['Marcel Caraciolo'][2][1])
     assert_equals('Steve Gates', similarity['Marcel Caraciolo'][2][0])
 
-    #sorensen Without limits
+    # sorensen Without limits
     similarity = UserSimilarity(model, sorensen_coefficient)
 
     assert_array_almost_equal(np.array([[1.]]), similarity['Leopoldo Pires'][0][1])
@@ -203,7 +209,7 @@ def test_get__item___UserSimilarity():
     assert_array_almost_equal(np.array([[0.]]), similarity['Leopoldo Pires'][7][1])
     assert_equals('Maria Gabriela', similarity['Leopoldo Pires'][7][0])
 
-    #loglikehood with limits
+    # loglikehood with limits
 
     similarity = UserSimilarity(model, loglikehood_coefficient, 0)
     assert_equals([], similarity['Steve Gates'])
@@ -236,7 +242,7 @@ def test_get__item___UserSimilarity():
 
 
 def test_get_similarities__UserSimilarity():
-    #MatrixModel
+    # MatrixModel
     model = MatrixPreferenceDataModel(movies)
 
     similarity = UserSimilarity(model, cosine_distances, 3)
@@ -269,7 +275,7 @@ def test_get_similarities__UserSimilarity():
 
     assert_equals(len(sim), model.users_count())
 
-    #MatrixBooleanPrefDataModel
+    # MatrixBooleanPrefDataModel
     model = MatrixBooleanPrefDataModel(movies)
 
     similarity = UserSimilarity(model, sorensen_coefficient, 3)
@@ -304,7 +310,7 @@ def test_get_similarities__UserSimilarity():
 
 
 def test__iter__UserSimilarity():
-    #MatrixModel
+    # MatrixModel
     model = MatrixPreferenceDataModel(movies)
     similarity = UserSimilarity(model, cosine_distances, 3)
 
@@ -354,7 +360,7 @@ def test__iter__UserSimilarity():
     for pref in prefs:
         assert_equals(len(pref), model.users_count())
 
-    #MatrixBooleanPrefDataModel
+    # MatrixBooleanPrefDataModel
     model = MatrixBooleanPrefDataModel(movies)
     similarity = UserSimilarity(model, jaccard_coefficient, 3)
 
@@ -406,8 +412,8 @@ def test__iter__UserSimilarity():
 
 
 def test_get__item___ItemSimilarity():
-    #MATRIXMODEL
-    #Cosine #With limits
+    # MATRIXMODEL
+    # Cosine #With limits
     model = MatrixPreferenceDataModel(movies)
     similarity = ItemSimilarity(model, cosine_distances, 3)
 
@@ -420,7 +426,7 @@ def test_get__item___ItemSimilarity():
     assert_array_almost_equal(np.array([[0.9798780]]), similarity['Snakes on a Plane'][2][1])
     assert_equals('Superman Returns', similarity['Snakes on a Plane'][2][0])
 
-    #Pearson Without limits
+    # Pearson Without limits
     similarity = ItemSimilarity(model, pearson_correlation)
 
     assert_array_equal(np.array([[1.]]), similarity['The Night Listener'][0][1])
@@ -491,8 +497,8 @@ def test_get__item___ItemSimilarity():
     assert_array_almost_equal(np.array([[-0.33333333]]), similarity['Snakes on a Plane'][5][1])
     assert_equals('You, Me and Dupree', similarity['Snakes on a Plane'][5][0])
 
-    #MatrixBooleanPrefDataModel
-    #Jaccard #With limits
+    # MatrixBooleanPrefDataModel
+    # Jaccard #With limits
     model = MatrixBooleanPrefDataModel(movies)
     similarity = ItemSimilarity(model, jaccard_coefficient, 3)
 
@@ -505,7 +511,7 @@ def test_get__item___ItemSimilarity():
     assert_array_almost_equal(np.array([[0.85714286]]), similarity['Snakes on a Plane'][2][1])
     assert_equals('The Night Listener', similarity['Snakes on a Plane'][2][0])
 
-    #Sorensen Without limits
+    # Sorensen Without limits
     similarity = ItemSimilarity(model, sorensen_coefficient)
 
     assert_array_equal(np.array([[1.]]), similarity['The Night Listener'][0][1])
@@ -581,7 +587,7 @@ def test_get__item___ItemSimilarity():
 
 
 def test_get_similarities__ItemSimilarity():
-    #MatrixModel
+    # MatrixModel
     model = MatrixPreferenceDataModel(movies)
 
     similarity = ItemSimilarity(model, cosine_distances, 3)
@@ -590,7 +596,7 @@ def test_get_similarities__ItemSimilarity():
 
     assert_equals(len(sim), model.items_count())
 
-    #Pearson Without limits
+    # Pearson Without limits
     similarity = ItemSimilarity(model, pearson_correlation)
 
     sim = similarity.get_similarities('Lady in the Water')
@@ -615,7 +621,7 @@ def test_get_similarities__ItemSimilarity():
 
     assert_equals(len(sim), model.items_count())
 
-    #MatrixBooleanPrefDataModel
+    # MatrixBooleanPrefDataModel
     model = MatrixBooleanPrefDataModel(movies)
 
     similarity = ItemSimilarity(model, jaccard_coefficient, 3)
@@ -624,7 +630,7 @@ def test_get_similarities__ItemSimilarity():
 
     assert_equals(len(sim), model.items_count())
 
-    #Sorensen Without limits
+    # Sorensen Without limits
     similarity = ItemSimilarity(model, sorensen_coefficient)
 
     sim = similarity.get_similarities('Lady in the Water')
@@ -651,7 +657,7 @@ def test_get_similarities__ItemSimilarity():
 
 
 def test__iter__ItemSimilarity():
-    #MATRIXMODEL
+    # MATRIXMODEL
     model = MatrixPreferenceDataModel(movies)
     similarity = ItemSimilarity(model, cosine_distances, 3)
 
@@ -701,7 +707,7 @@ def test__iter__ItemSimilarity():
     for pref in prefs:
         assert_equals(len(pref), model.items_count())
 
-    #MatrixBooleanPrefDataModel
+    # MatrixBooleanPrefDataModel
     model = MatrixBooleanPrefDataModel(movies)
     similarity = ItemSimilarity(model, sorensen_coefficient, 3)
 

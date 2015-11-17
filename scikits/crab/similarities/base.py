@@ -1,11 +1,11 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 """
 Base Similarity Models.
 
 """
-#Authors: Marcel Caraciolo <marcel@muricoca.com>
-#License: BSD Style
+# Authors: Marcel Caraciolo <marcel@muricoca.com>
+# License: BSD Style
 import numpy as np
 
 
@@ -41,6 +41,7 @@ class BaseSimilarity(object):
           as a sorted list.
 
     """
+
     def __init__(self, model, distance, num_best=None):
         self.model = model
         self.distance = distance
@@ -51,16 +52,13 @@ class BaseSimilarity(object):
 
     def get_similarity(self, source_id, target_id):
         """
-        Return similarity of the `source_id` to a specific `target_id` in the
-        model.
+        Return similarity of the `source_id` to a specific `target_id` in the model.
         """
         raise NotImplementedError("cannot instantiate Abstract Base Class")
 
     def get_similarities(self, source_id):
         """
-
         Return similarity of the `source_id` to all sources in the model.
-
         """
         raise NotImplementedError("cannot instantiate Abstract Base Class")
 

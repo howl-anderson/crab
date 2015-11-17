@@ -7,26 +7,25 @@ Base IO code for all datasets
 #          Bruno Melo <bruno@muricoca.com>
 # License: BSD Style.
 
-# from os.path import dirname
-# from os.path import join
 import os
+
 import numpy as np
 
 
 class Bunch(dict):
     """
     Container object for datasets: dictionary-like object
-    that exposes its keys and attributes. """
+    that exposes its keys and attributes.
+    """
 
     def __init__(self, **kwargs):
-        dict.__init__(self, kwargs)
+        super(Bunch, self).__init__(**kwargs)
         self.__dict__ = self
 
 
 def load_movielens_r100k(load_timestamp=False):
-    """ Load and return the MovieLens dataset with
-        100,000 ratings (only the user ids, item ids, timestamps
-        and ratings).
+    """
+    Load and return the MovieLens dataset with 100,000 ratings (only the user ids, item ids, timestamps and ratings).
 
     Parameters
     ----------
@@ -46,51 +45,41 @@ def load_movielens_r100k(load_timestamp=False):
             {item_id: label, item_id2: label2, ...} and
         DESCR, the full description of the dataset.
 
-    Examples
-    --------
-    To load the MovieLens data::
-
-    >>> from scikits.crab.datasets import load_movielens_r100k
-    >>> movies = load_movielens_r100k()
-    >>> len(movies['data'])
-    943
-    >>> len(movies['item_ids'])
-    1682
-
     """
     base_dir = os.path.join(os.path.dirname(__file__), 'data')
     # Read data
     if load_timestamp:
-        data_m = np.loadtxt(os.path.join(base_dir, 'movielens100k.data'), delimiter='\t', dtype=int)
+        data_ndarray = np.loadtxt(os.path.join(base_dir, 'movielens100k.data'), delimiter='\t', dtype=int)
         data_movies = {}
-        for user_id, item_id, rating, timestamp in data_m:
+        for user_id, item_id, rating, timestamp in data_ndarray:
             data_movies.setdefault(user_id, {})
             data_movies[user_id][item_id] = (timestamp, int(rating))
     else:
-        data_m = np.loadtxt(os.path.join(base_dir, 'movielens100k.data'), delimiter='\t', usecols=(0, 1, 2), dtype=int)
+        data_ndarray = np.loadtxt(os.path.join(base_dir, 'movielens100k.data'), delimiter='\t', usecols=(0, 1, 2), dtype=int)
 
         data_movies = {}
-        for user_id, item_id, rating in data_m:
+        for user_id, item_id, rating in data_ndarray:
             data_movies.setdefault(user_id, {})
             data_movies[user_id][item_id] = int(rating)
 
     # Read the titles
-    data_titles = np.loadtxt(os.path.join(base_dir, 'movielens100k.item'), delimiter='|', usecols=(0, 1), dtype=str)
+    data_titles_ndarray = np.loadtxt(os.path.join(base_dir, 'movielens100k.item'), delimiter='|', usecols=(0, 1), dtype=str)
 
     data_t = []
-    for item_id, label in data_titles:
+    for item_id, label in data_titles_ndarray:
         data_t.append((int(item_id), label))
     data_titles = dict(data_t)
 
-    fdescr = open(os.path.join(os.path.dirname(__file__), 'descr', 'movielens100k.rst'))
+    fd = open(os.path.join(os.path.dirname(__file__), 'descr', 'movielens100k.rst'))
+    desc = fd.read()
+    fd.close()
 
-    return Bunch(data=data_movies, item_ids=data_titles,
-                 user_ids=None, DESCR=fdescr.read())
+    return Bunch(data=data_movies, item_ids=data_titles, user_ids=None, DESCR=desc)
 
 
 def load_sample_songs():
-    """ Load and return the songs dataset with
-         49 ratings (only the user ids, item ids and ratings).
+    """
+    Load and return the songs dataset with 49 ratings (only the user ids, item ids and ratings).
 
     Return
     ------
@@ -104,55 +93,46 @@ def load_sample_songs():
         'item_ids': the item labels with respective ids in the shape:
             {item_id: label, item_id2: label2, ...} and
         DESCR, the full description of the dataset.
-
-    Examples
-    --------
-    To load the sample songs data::
-
-    >>> from scikits.crab.datasets import load_sample_songs
-    >>> songs = load_sample_songs()
-    >>> len(songs['data'])
-    8
-    >>> len(songs['item_ids'])
-    8
 
     """
     base_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     # Read data
     data_m = np.loadtxt(os.path.join(base_dir, 'sample_songs.csv'), delimiter=',', dtype=str)
-    item_ids = []
-    user_ids = []
+    item_id_list = []
+    user_id_list = []
     data_songs = {}
     for user_id, item_id, rating in data_m:
-        if user_id not in user_ids:
-            user_ids.append(user_id)
-        if item_id not in item_ids:
-            item_ids.append(item_id)
-        u_ix = user_ids.index(user_id) + 1
-        i_ix = item_ids.index(item_id) + 1
-        data_songs.setdefault(u_ix, {})
-        data_songs[u_ix][i_ix] = float(rating)
+        if user_id not in user_id_list:
+            user_id_list.append(user_id)
+        if item_id not in item_id_list:
+            item_id_list.append(item_id)
+
+        current_user_id = user_id_list.index(user_id) + 1
+        current_item_id = item_id_list.index(item_id) + 1
+        data_songs.setdefault(current_user_id, {})
+        data_songs[current_user_id][current_item_id] = float(rating)
 
     data_t = []
-    for no, item_id in enumerate(item_ids):
+    for no, item_id in enumerate(item_id_list):
         data_t.append((no + 1, item_id))
     data_titles = dict(data_t)
 
     data_u = []
-    for no, user_id in enumerate(user_ids):
+    for no, user_id in enumerate(user_id_list):
         data_u.append((no + 1, user_id))
     data_users = dict(data_u)
 
-    fdescr = open(os.path.join(os.path.dirname(__file__), 'descr', 'sample_songs.rst'))
+    fd = open(os.path.join(os.path.dirname(__file__), 'descr', 'sample_songs.rst'))
+    desc = fd.read()
+    fd.close()
 
-    return Bunch(data=data_songs, item_ids=data_titles,
-                 user_ids=data_users, DESCR=fdescr.read())
+    return Bunch(data=data_songs, item_ids=data_titles, user_ids=data_users, DESCR=desc)
 
 
 def load_sample_movies():
-    """ Load and return the movies dataset with
-         n ratings (only the user ids, item ids and ratings).
+    """
+    Load and return the movies dataset with n ratings (only the user ids, item ids and ratings).
 
     Return
     ------
@@ -166,17 +146,6 @@ def load_sample_movies():
         'item_ids': the item labels with respective ids in the shape:
             {item_id: label, item_id2: label2, ...} and
         DESCR, the full description of the dataset.
-
-    Examples
-    --------
-    To load the sample movies data::
-
-    >>> from scikits.crab.datasets import load_sample_movies
-    >>> movies = load_sample_movies()
-    >>> len(movies['data'])
-    7
-    >>> len(movies['item_ids'])
-    6
 
     """
     base_dir = os.path.join(os.path.dirname(__file__), 'data')
@@ -206,7 +175,8 @@ def load_sample_movies():
         user_data.append((item_index + 1, user_name))
     user_mapping = dict(user_data)
 
-    fdescr = open(os.path.join(os.path.dirname(__file__), 'descr', 'sample_movies.rst'))
+    fd = open(os.path.join(os.path.dirname(__file__), 'descr', 'sample_movies.rst'))
+    desc = fd.read()
+    fd.close()
 
-    return Bunch(data=data_songs, item_ids=item_mapping,
-                 user_ids=user_mapping, DESCR=fdescr.read())
+    return Bunch(data=data_songs, item_ids=item_mapping, user_ids=user_mapping, DESCR=desc)

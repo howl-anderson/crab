@@ -97,7 +97,7 @@ class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
             self.similarity = UserSimilarity(data_model, distance, neighborhood_size)
 
     def user_neighborhood(self, user_id, data_model, n_similarity='user_similarity',
-                          distance=None, neighborhood_size=None, **params):
+                          distance=None, neighborhood_size=None, **kwargs):
         """
         Computes a neighborhood consisting of the  n users to a given
         user based on the strategy implemented in this method.
@@ -127,8 +127,8 @@ class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
 
         """
 
-        minimal_similarity = params.get('minimal_similarity', 0.0)
-        sampling_rate = params.get('sampling_rate', 1.0)
+        minimal_similarity = kwargs.get('minimal_similarity', 0.0)
+        sampling_rate = kwargs.get('sampling_rate', 1.0)
 
         data_model = self._sampling(data_model, sampling_rate)
         # set the neighborhood_size at Similarity , and use Similarity to get the top_users
@@ -139,7 +139,6 @@ class NearestNeighborsStrategy(BaseUserNeighborhoodStrategy):
         else:
             raise ValueError('similarity argument must be user_similarity')
 
-        neighborhood = [to_user_id for to_user_id, score in self.similarity[user_id] \
-                           if not np.isnan(score) and score >= minimal_similarity and user_id != to_user_id]
+        neighborhood = [to_user_id for to_user_id, score in self.similarity[user_id] if not np.isnan(score) and score >= minimal_similarity and to_user_id != user_id]
 
         return neighborhood
