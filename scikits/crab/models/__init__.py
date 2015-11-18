@@ -1,1 +1,2 @@
 from .classes import MatrixPreferenceDataModel, MatrixBooleanPrefDataModel
+from .classes import NumericalDataModel

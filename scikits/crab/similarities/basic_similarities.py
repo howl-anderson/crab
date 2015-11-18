@@ -134,6 +134,38 @@ class UserSimilarity(BaseSimilarity):
             yield source_id, self[source_id]
 
 
+class User(object):
+    """
+    this class is designed to replace the class of UserSimilarity
+    """
+    def __init__(self, data_model, similarity_method):
+        self.data_model = data_model
+        self.similarity_method = similarity_method
+
+    def fetch_other_users(self, user_id):
+        user_list = list(self.data_model.get_user_list())
+        user_loc = user_list.index(user_id)
+        user_list.pop(user_loc)
+
+        return user_list
+
+    def compute_pair_similarity(self, source_id, target_id):
+        source_data = self.data_model.item_values_by_user(source_id)
+        target_id = self.data_model.item_values_by_user(target_id)
+        similarity = self.similarity_method(source_data, target_id).compute()
+
+        return similarity
+
+    def compute_similarities(self, source_id):
+        other_users = self.fetch_other_users(source_id)
+
+        similarities = {}
+        for other_user in other_users:
+            similarity = self.compute_pair_similarity(source_id, other_user)
+            similarities[other_user] = similarity
+
+        return similarities
+
 class ItemSimilarity(BaseSimilarity):
     """
     Returns the degree of similarity, of two items, based on its preferences by the users.
@@ -233,3 +265,5 @@ class ItemSimilarity(BaseSimilarity):
         """
         for item_id in self.model.item_ids():
             yield item_id, self[item_id]
+
+

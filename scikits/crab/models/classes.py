@@ -16,6 +16,75 @@ import logging
 logger = logging.getLogger('crab')
 
 
+class NumericalDataModel(object):
+    """
+    this class is design to replace the class of MatrixPreferenceDataModel
+    """
+    def __init__(self, data_set):
+        self.data_set = data_set
+
+        self.data = None
+        self.user_list = None
+        self.item_list = None
+
+        self.max_value = -np.inf
+        self.min_value = np.inf
+
+        self.build_model()
+
+    def build_model(self):
+        self.user_list = self.data_set.keys()
+        self.user_list.sort()
+
+        self.item_list = set()
+        for items in self.data_set.itervalues():
+            self.item_list.update(set(items.keys()))
+
+        self.item_list = list(self.item_list)
+        self.item_list.sort()
+
+        # logger.info("Creating matrix for %d users and %d items" % (self.user_list.size, self.item_list.size))
+
+        self.data = np.empty(shape=(len(self.user_list), len(self.item_list)))
+        for user_index, user_id in enumerate(self.user_list):
+            # TODO: need better progress
+            # if user_index % 2 == 0:
+            #     logger.debug("PROGRESS: at user_id #%i/%i" % (user_index, self.user_list.size))
+            for item_index, item_id in enumerate(self.item_list):
+                value = self.data_set[user_id].get(item_id, np.NaN)  # Is it to be np.NaN or 0 ?!!
+                self.data[user_index, item_index] = value
+
+        if self.data.size:
+            self.max_value = np.nanmax(self.data)
+            self.min_value = np.nanmin(self.data)
+
+    def get_user_list(self):
+        return tuple(self.user_list)
+
+    def get_item_list(self):
+        return tuple(self.item_list)
+
+    def item_values_by_user(self, user_id):
+        if user_id not in self.user_list:
+            raise UserNotFoundError
+
+        user_id_loc = self.user_list.index(user_id)
+        item_values = self.data[user_id_loc]
+        return item_values
+
+    def items_by_user(self, user_id, rm_nan=False):
+        item_values = self.item_values_by_user(user_id)
+
+        data = zip(self.item_list, item_values)
+
+        if rm_nan is False:
+            return data
+        else:
+            data_list = [(k, v) for k, v in data if not np.isnan(v)]
+            return data_list
+
+
+
 class MatrixPreferenceDataModel(BaseDataModel):
     """
     Matrix with preferences based Data model

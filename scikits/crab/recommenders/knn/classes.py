@@ -694,3 +694,37 @@ class UserBasedRecommender(UserRecommender):
                  for ind in sorted_preferences]
 
         return top_n_recs
+
+
+class RecommendItemsBasedOnUser(object):
+    """
+    this class is designed to replace class of UserBasedRecommender
+    """
+
+    def __init__(self, data_model, similarity_object):
+        self.data_model = data_model
+        self.similarity_object = similarity_object
+
+    def recommend(self, user_id, max_number=None):
+        """
+        """
+        user_similarity = self.similarity_object.compute_similarities(user_id)
+
+        # find only positive relative similarity
+        positive_user = dict([(k, v) for k, v in user_similarity.iteritems() if v > 0])
+
+        recommend_data = []
+        for k, v in positive_user.iteritems():
+            item_score = dict(self.data_model.items_by_user(k))
+            item_value = [(key, value * v) if not np.isnan(value) else (key, np.nan) for key, value in item_score.iteritems()]
+            recommend_data.append(item_value)
+
+        recommend_list = [dict(i).values() for i in recommend_data]
+
+        data = np.array(recommend_list)
+        logical_data = np.logical_not(np.sum(np.isnan(data), axis=0).astype(bool))
+        item_key = np.array(self.data_model.get_item_list())[logical_data]
+        wighted_value = np.sum(data[:, logical_data], axis=0)
+
+        recomand = dict(zip(item_key, wighted_value))
+        return recomand
