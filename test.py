@@ -35,5 +35,5 @@ from scikits.crab.recommenders.knn import UserBasedRecommender
 recommender = UserBasedRecommender(model, similarity, with_preference=True)
 
 #Recommend items for the user 5 (Toby)
-recommender.recommend(5)
+print recommender.recommend(5)
 # [(5, 3.3477895267131013), (1, 2.8572508984333034), (6, 2.4473604699719846)]
