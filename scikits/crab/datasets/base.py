@@ -218,3 +218,39 @@ def fetch_sample_songs():
     fd.close()
 
     return Bunch(data=data, item_mapping=item_mapping, user_mapping=user_mapping, description=description)
+
+
+def fetch_sample_movies():
+    """
+    This class is designed for replace class of load_sample_movies
+    """
+    base_dir = os.path.join(os.path.dirname(__file__), 'data')
+
+    # Read data
+    raw_data = np.loadtxt(os.path.join(base_dir, 'sample_movies.csv'), delimiter=';', dtype=str)
+    item_list = []
+    user_list = []
+    data = {}
+    for user_name, item_name, rating in raw_data:
+        if user_name not in user_list:
+            user_list.append(user_name)
+        if item_name not in item_list:
+            item_list.append(item_name)
+        current_user_index = user_list.index(user_name)
+        current_item_index = item_list.index(item_name)
+        data.setdefault(current_user_index, {})
+        data[current_user_index][current_item_index] = float(rating)
+
+    item_mapping = {}
+    for id, item_tag in enumerate(item_list):
+        item_mapping[item_tag] = id
+
+    user_mapping = {}
+    for id, user_tag in enumerate(user_list):
+        user_mapping[user_tag] = id
+
+    fd = open(os.path.join(os.path.dirname(__file__), 'descr', 'sample_movies.rst'))
+    description = fd.read()
+    fd.close()
+
+    return Bunch(data=data, item_mapping=item_mapping, user_mapping=user_mapping, description=description)
